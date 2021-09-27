@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
-
+set(CMAKE_CXX_STANDARD 20) 
 #
 # Project details
 #
 
 project(
-  "Project"
+  MyOpenCVProject
   VERSION 0.1.0
   LANGUAGES CXX
 )
@@ -118,6 +118,23 @@ include(cmake/Doxygen.cmake)
 #
 # Model project dependencies
 #
+find_package(OpenCV)
+
+if(OpenCV_FOUND)
+    include_directories(include ${OpenCV_INCLUDE_DIRS} src)
+    #add_executable(test src/main.cpp 
+    #                         src/functions.cpp
+     #                        include/project/tmp.h)
+    #target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+else()
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup()
+        include_directories(include src)
+        #add_executable(test src/main.cpp 
+        #                        src/functions.cpp
+        #                        src/functions.h)
+        target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
+endif()    
 
 # Identify and link with the specific "packages" the project uses
 #find_package(package_name package_version REQUIRED package_type [other_options])
@@ -149,7 +166,7 @@ include(cmake/Doxygen.cmake)
 # On Linux and Mac this variable is ignored. If any issues rise from it, try commenting it out
 # and letting CMake decide how to link with it.
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 verbose_message("Successfully added all dependencies and linked against them.")
 
 #
@@ -193,6 +210,9 @@ message(STATUS "Finished setting up include directories.")
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   add_executable(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  # Link your application with OpenCV libraries
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+
 else()
   add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 endif()

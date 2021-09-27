@@ -6,12 +6,10 @@
 
 # Modern C++ Template
 
-A quick C++ template for modern CMake projects, aimed to be an easy to use
-starting point.
+A quick C++ template for an opencv project, based on another C++ template by [Filip-Ioan Dutescu](https://github.com/filipdutescu/modern-cpp-template), aimed to be both easy to use and have pretty good performance.
 
-This is my personal take on such a type of template, thus I might not use the
-best practices or you might disagree with how I do things. Any and all feedback
-is greatly appreciated!
+
+it runs,but I have yet to move the logic for frame processing out of main.cpp. I'm still working on the template, but feel free to use it as a starting point anyway. 
 
 ## Features
 
@@ -74,8 +72,8 @@ template *as-is*, meaning using the versions recommended here, then you will nee
 ### Installing
 
 It is fairly easy to install the project, all you need to do is clone if from
-[GitHub](https://github.com/filipdutescu/modern-cpp-template) or
-[generate a new repository from it](https://github.com/filipdutescu/modern-cpp-template/generate)
+[GitHub](https://github.com/skewballfox/modern-opencv-template) or
+[generate a new repository from it](https://github.com/skewballfox/modern-opencv-template)
 (also on **GitHub**).
 
 If you wish to clone the repository, rather than generate from it, you simply need
@@ -194,11 +192,11 @@ become a contributor and the process for submitting pull requests to us.
 
 This project makes use of [SemVer](http://semver.org/) for versioning. A list of
 existing versions can be found in the
-[project's releases](https://github.com/filipdutescu/modern-cpp-template/releases).
+[project's releases](https://github.com/skewballfox/modern-opencv-template/releases).
 
 ## Authors
 
-* **Filip-Ioan Dutescu** - [@filipdutescu](https://github.com/filipdutescu)
+* **Joshua Ferguson** - [@skewballfox](https://github.com/skewballfox)
 
 ## License
 

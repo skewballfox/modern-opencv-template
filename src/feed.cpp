@@ -1,9 +1,10 @@
 #include "myopencvproject/feed.hpp"
 
-Feed::Feed(int feed_ident, string feed_name)
+Feed::Feed(int feed_ident, std::string feed_name)
 {
-  this->feed_ident = feed_ident;
+  feed_id = feed_ident;
   this->feed_name = feed_name;
+  display = false;
   // Configure
   // cv::setNumThreads(processor_count);
   grabbing.store(true);    // set the grabbing control variable
@@ -15,8 +16,8 @@ void Feed::loop(void (*func)(cv::Mat&))
   grabbing.store(true);    // set the grabbing control variable
   processing.store(true);  // ensure the processing will start
   // Capture Input
-  producer(feedProducer);
-  consumer(feedConsumer, std::ref(func));
+  this->producer(&Feed::feedProducer, this);
+  this->consumer(&Feed::feedConsumer, this, std::ref(func));
 }
 
 void Feed::feedProducer()
@@ -27,7 +28,7 @@ void Feed::feedProducer()
 
   if (!camera.isOpened())
   {
-    cout << "ERROR opening camera..." << endl;
+    std::cout << "ERROR opening camera..." << std::endl;
     return;
   }
   while (grabbing.load() == true)
@@ -44,9 +45,7 @@ void Feed::feedConsumer(void (*func)(cv::Mat&))
 {
   cv::Mat frame;
 
-  double fps = 0.0;
-  string fps_text = "";
-  while (processing.load() == true)
+  while (this->processing.load() == true)
   {
     feed.pop(frame);
 
@@ -55,12 +54,17 @@ void Feed::feedConsumer(void (*func)(cv::Mat&))
       std::cout << "ERROR: empty frame" << endl;
       continue;
     }
-    func(frame);
-    imshow(feed_name, neg);
-    waitKey(1);
+    func(*frame);
+    if (display)
+      cv::imshow(feed_name, neg);
+    cv::waitKey(1);
   }
 }
 
+void Feed::setDisplay(bool display)
+{
+  this->display = display;
+}
 Feed::~Feed()
 {
   grabbing.store(false);

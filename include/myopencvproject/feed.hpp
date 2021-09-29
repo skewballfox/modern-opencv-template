@@ -2,6 +2,7 @@
 #define MYOPENCVPROJECT_FEED_H_
 
 #include <atomic>
+#include <string>
 #include <thread>
 
 #include "boost/lockfree/spsc_queue.hpp"
@@ -12,20 +13,23 @@ class Feed
 {
  private:
   int feed_id;
-  string feed_name;
+  std::string feed_name;
+  bool display;
 
   boost::lockfree::spsc_queue<cv::Mat, boost::lockfree::capacity<100>> feed;
-  atomic<bool> grabbing, processing;
+  std::atomic<bool> grabbing, processing;
   std::thread producer, consumer;
 
   void feedProducer();
-  void feedConsumer();
+  void feedConsumer(void (*func)(cv::Mat&));
 
  public:
-  Feed(int feed_id);
+  Feed(int, std::string);
   ~Feed();
 
-  loop(void (*func)(cv::Mat&));
-}
+  void setDisplay(bool display);
+
+  void loop(void (*func)(cv::Mat&));
+};
 
 #endif  // MYOPENCVPROJECT_FEED_H_

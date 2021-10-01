@@ -11,7 +11,8 @@ Feed::Feed(int feed_ident, std::string feed_name)
   processing.store(true);  // ensure the processing will start
 }
 
-void Feed::loop(std::function<void()> func(cv::Mat&))
+template<typename F>
+void Feed::loop(F&& func(cv::Mat&))
 {
   grabbing.store(true);    // set the grabbing control variable
   processing.store(true);  // ensure the processing will start
@@ -41,7 +42,8 @@ void Feed::feedProducer()
   processing.store(false);  //!!!!!!stop processing here
 }
 
-void Feed::feedConsumer(std::function<void()> func(cv::Mat&))
+template<typename F>
+void Feed::feedConsumer(F func(cv::Mat&))
 {
   cv::Mat frame;
 

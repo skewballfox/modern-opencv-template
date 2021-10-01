@@ -26,7 +26,7 @@ int main()
   double fps = 0.0;
   string fps_text = "";
   feed.loop(
-      [&](Mat& frame) -> void
+      [&](Mat& frame)
       {
         // Compute negative image, i.e., 255 - pixel_val
         Mat neg = Mat(frame.size(), frame.type());

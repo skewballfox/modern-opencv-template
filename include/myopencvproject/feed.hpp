@@ -21,7 +21,7 @@ class Feed
   std::thread producer, consumer;
 
   void feedProducer();
-  void feedConsumer(void (*func)(cv::Mat&));
+  void feedConsumer(std::function<void()> func(cv::Mat&));
 
  public:
   Feed(int, std::string);
@@ -29,7 +29,7 @@ class Feed
 
   void setDisplay(bool display);
 
-  void loop(void (*func)(cv::Mat&));
+  void loop(std::function<void()> func(cv::Mat&));
 };
 
 #endif  // MYOPENCVPROJECT_FEED_H_

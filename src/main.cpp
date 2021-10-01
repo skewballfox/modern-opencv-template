@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "boost/lockfree/spsc_queue.hpp"
+#include "myopencvproject/feed.hpp"
 #include "myopencvproject/fps_utils.hpp"
 #include "opencv2/opencv.hpp"
 using namespace cv;
@@ -25,7 +26,7 @@ int main()
   double fps = 0.0;
   string fps_text = "";
   feed.loop(
-      [&](Mat& frame)
+      [&](Mat& frame) -> void
       {
         // Compute negative image, i.e., 255 - pixel_val
         Mat neg = Mat(frame.size(), frame.type());

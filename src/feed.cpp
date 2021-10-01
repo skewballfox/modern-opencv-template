@@ -11,13 +11,13 @@ Feed::Feed(int feed_ident, std::string feed_name)
   processing.store(true);  // ensure the processing will start
 }
 
-void Feed::loop(void (*func)(cv::Mat&))
+void Feed::loop(std::function<void()> func(cv::Mat&))
 {
   grabbing.store(true);    // set the grabbing control variable
   processing.store(true);  // ensure the processing will start
   // Capture Input
-  this->producer(&Feed::feedProducer, this);
-  this->consumer(&Feed::feedConsumer, this, std::ref(func));
+  producer = std::thread(&Feed::feedProducer, this);
+  consumer = std::thread(&Feed::feedConsumer, this, std::ref(func));
 }
 
 void Feed::feedProducer()
@@ -41,7 +41,7 @@ void Feed::feedProducer()
   processing.store(false);  //!!!!!!stop processing here
 }
 
-void Feed::feedConsumer(void (*func)(cv::Mat&))
+void Feed::feedConsumer(std::function<void()> func(cv::Mat&))
 {
   cv::Mat frame;
 
@@ -51,12 +51,12 @@ void Feed::feedConsumer(void (*func)(cv::Mat&))
 
     if (frame.empty())
     {
-      std::cout << "ERROR: empty frame" << endl;
+      std::cout << "ERROR: empty frame" << std::endl;
       continue;
     }
-    func(*frame);
+    func(frame);
     if (display)
-      cv::imshow(feed_name, neg);
+      cv::imshow(feed_name, frame);
     cv::waitKey(1);
   }
 }

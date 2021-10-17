@@ -22,8 +22,8 @@ class Feed
 
   void feedProducer();
 
-  template<typename F>
-  void feedConsumer(F func(cv::Mat&));
+  // template<typename F>
+  void feedConsumer(std::function<auto(cv::Mat&)->void> func);
 
  public:
   Feed(int, std::string);
@@ -31,8 +31,10 @@ class Feed
 
   void setDisplay(bool display);
 
-  template<typename F>
-  void loop(F&& func(cv::Mat&));
+  // template<typename F>
+  void loop(std::function<auto(cv::Mat&)->void> func);
+
+  void stop();
 };
 
 #endif  // MYOPENCVPROJECT_FEED_H_

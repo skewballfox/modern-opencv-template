@@ -26,6 +26,7 @@ int main()
   double fps = 0.0;
   string fps_text = "";
   feed.loop(
+
       [&](Mat& frame)
       {
         // Compute negative image, i.e., 255 - pixel_val
@@ -55,6 +56,11 @@ int main()
             CV_RGB(118, 185, 0),  // font color
             2);
       });
+
+  cout << endl << "Press Enter to stop grabbing...";
+  cin.get();
+
+  // delete &feed;
 
   return 0;
 }

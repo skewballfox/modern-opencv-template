@@ -11,14 +11,15 @@ Feed::Feed(int feed_ident, std::string feed_name)
   processing.store(true);  // ensure the processing will start
 }
 
-// template<typename F>
-void Feed::loop(std::function<auto(cv::Mat&)->void> func)
+template<typename Func>
+void Feed::loop(Func&& f)
 {
-  grabbing.store(true);    // set the grabbing control variable
-  processing.store(true);  // ensure the processing will start
+  this->start();
+  this->setFrameDataProcessor(std::forward<Func>(f));
+
   // Capture Input
   producer = std::thread(&Feed::feedProducer, this);
-  consumer = std::thread(&Feed::feedConsumer, this, std::ref(func));
+  consumer = std::thread(&Feed::feedConsumer, this);
 }
 
 void Feed::feedProducer()
@@ -37,30 +38,46 @@ void Feed::feedProducer()
     camera >> frame;
     if (frame.empty())
       continue;
-    feed.push(frame);
+    frameBuffer.push(frame);
   }
   processing.store(false);  //!!!!!!stop processing here
 }
 
-// template<typename F>
-void Feed::feedConsumer(std::function<auto(cv::Mat&)->void> func)
+// template<typename Func>
+void Feed::feedConsumer()
 {
   cv::Mat frame;
 
   while (this->processing.load() == true)
   {
-    feed.pop(frame);
+    frameBuffer.pop(frame);
 
     if (frame.empty())
     {
-      std::cout << "ERROR: empty frame" << std::endl;
+      // qstd::cout << "ERROR: empty frame" << std::endl;
       continue;
     }
-    func(frame);
+    this->frameDataProcessor(frame);
     if (display)
       cv::imshow(feed_name, frame);
     cv::waitKey(1);
   }
+}
+void Feed::start()
+{
+  grabbing.store(true);    // set the grabbing control variable
+  processing.store(true);  // ensure the processing will start
+}
+
+void Feed::stop()
+{
+  grabbing.store(false);  // set the grabbing control variable
+  processing.store(false);
+}
+template<typename Func>
+void Feed::setFrameDataProcessor(Func&& f)
+{
+  frameDataProcessor(std::forward<Func>(f));
 }
 
 void Feed::setDisplay(bool display)

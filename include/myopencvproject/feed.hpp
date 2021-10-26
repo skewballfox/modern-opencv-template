@@ -9,6 +9,9 @@
 #include "opencv2/opencv.hpp"
 
 //#TODO: finish moving functions out of main and encapsulate them in this class
+
+// template<typename Func>
+// struct Func;
 class Feed
 {
  private:
@@ -16,14 +19,16 @@ class Feed
   std::string feed_name;
   bool display;
 
-  boost::lockfree::spsc_queue<cv::Mat, boost::lockfree::capacity<100>> feed;
+  boost::lockfree::spsc_queue<cv::Mat, boost::lockfree::capacity<100>> frameBuffer;
   std::atomic<bool> grabbing, processing;
   std::thread producer, consumer;
 
+  std::function<void(cv::Mat&)> frameDataProcessor;
+
   void feedProducer();
 
-  // template<typename F>
-  void feedConsumer(std::function<auto(cv::Mat&)->void> func);
+  template<typename Func>
+  void feedConsumer();
 
  public:
   Feed(int, std::string);
@@ -31,9 +36,13 @@ class Feed
 
   void setDisplay(bool display);
 
-  // template<typename F>
-  void loop(std::function<auto(cv::Mat&)->void> func);
+  template<typename Func>
+  void setFrameDataProcessor(Func&& f);
 
+  template<typename Func>
+  void loop(Func&& f);
+
+  void start();
   void stop();
 };
 

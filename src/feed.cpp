@@ -11,17 +11,6 @@ Feed::Feed(int feed_ident, std::string feed_name)
   processing.store(true);  // ensure the processing will start
 }
 
-template<typename Func>
-void Feed::loop(Func&& f)
-{
-  this->start();
-  this->setFrameDataProcessor(std::forward<Func>(f));
-
-  // Capture Input
-  producer = std::thread(&Feed::feedProducer, this);
-  consumer = std::thread(&Feed::feedConsumer, this);
-}
-
 void Feed::feedProducer()
 {
   cv::Mat frame;
@@ -73,11 +62,6 @@ void Feed::stop()
 {
   grabbing.store(false);  // set the grabbing control variable
   processing.store(false);
-}
-template<typename Func>
-void Feed::setFrameDataProcessor(Func&& f)
-{
-  frameDataProcessor(std::forward<Func>(f));
 }
 
 void Feed::setDisplay(bool display)

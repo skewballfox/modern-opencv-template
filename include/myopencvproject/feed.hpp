@@ -27,7 +27,7 @@ class Feed
 
   void feedProducer();
 
-  template<typename Func>
+  // template<typename Func>
   void feedConsumer();
 
  public:
@@ -37,10 +37,21 @@ class Feed
   void setDisplay(bool display);
 
   template<typename Func>
-  void setFrameDataProcessor(Func&& f);
+  void setFrameDataProcessor(Func&& f)
+  {
+    frameDataProcessor = std::forward<Func>(f);
+  }
 
   template<typename Func>
-  void loop(Func&& f);
+  void loop(Func&& f)
+  {
+    this->start();
+    this->setFrameDataProcessor(std::forward<Func>(f));
+
+    // Capture Input
+    producer = std::thread(&Feed::feedProducer, this);
+    consumer = std::thread(&Feed::feedConsumer, this);
+  }
 
   void start();
   void stop();

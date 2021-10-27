@@ -11,7 +11,7 @@
 using namespace cv;
 using namespace std;
 
-struct feedFunctor
+class feedFunctor
 {
  private:
   // any necessary state goes here
@@ -19,6 +19,10 @@ struct feedFunctor
   string fps_text = "";
 
  public:
+  feedFunctor()
+  {
+  }
+
   // the actual process per frame goes here
   void operator()(cv::Mat& frame)
   {

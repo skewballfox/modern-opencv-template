@@ -94,6 +94,7 @@ message(STATUS "Added all header and implementation files.\n")
 #
 # Set the project standard and warnings
 #
+#set(CMAKE_CXX_FLAGS "-fpermissive -std=c++0x")
 
 if(${PROJECT_NAME}_BUILD_HEADERS_ONLY)
   target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)

@@ -1,22 +1,14 @@
 #include "myopencvproject/feed.hpp"
 
-Feed::Feed(int feed_ident, string feed_name)
+Feed::Feed(int feed_ident, std::string feed_name)
 {
-  this->feed_ident = feed_ident;
+  feed_id = feed_ident;
   this->feed_name = feed_name;
+  display = false;
   // Configure
   // cv::setNumThreads(processor_count);
   grabbing.store(true);    // set the grabbing control variable
   processing.store(true);  // ensure the processing will start
-}
-
-void Feed::loop(void (*func)(cv::Mat&))
-{
-  grabbing.store(true);    // set the grabbing control variable
-  processing.store(true);  // ensure the processing will start
-  // Capture Input
-  producer(feedProducer);
-  consumer(feedConsumer, std::ref(func));
 }
 
 void Feed::feedProducer()
@@ -27,7 +19,7 @@ void Feed::feedProducer()
 
   if (!camera.isOpened())
   {
-    cout << "ERROR opening camera..." << endl;
+    std::cout << "ERROR opening camera..." << std::endl;
     return;
   }
   while (grabbing.load() == true)
@@ -35,32 +27,47 @@ void Feed::feedProducer()
     camera >> frame;
     if (frame.empty())
       continue;
-    feed.push(frame);
+    frameBuffer.push(frame);
   }
   processing.store(false);  //!!!!!!stop processing here
 }
 
-void Feed::feedConsumer(void (*func)(cv::Mat&))
+// template<typename Func>
+void Feed::feedConsumer()
 {
   cv::Mat frame;
 
-  double fps = 0.0;
-  string fps_text = "";
-  while (processing.load() == true)
+  while (this->processing.load() == true)
   {
-    feed.pop(frame);
+    frameBuffer.pop(frame);
 
     if (frame.empty())
     {
-      std::cout << "ERROR: empty frame" << endl;
+      // qstd::cout << "ERROR: empty frame" << std::endl;
       continue;
     }
-    func(frame);
-    imshow(feed_name, neg);
-    waitKey(1);
+    this->frameDataProcessor(frame);
+    if (display)
+      cv::imshow(feed_name, frame);
+    cv::waitKey(1);
   }
 }
+void Feed::start()
+{
+  grabbing.store(true);    // set the grabbing control variable
+  processing.store(true);  // ensure the processing will start
+}
 
+void Feed::stop()
+{
+  grabbing.store(false);  // set the grabbing control variable
+  processing.store(false);
+}
+
+void Feed::setDisplay(bool display)
+{
+  this->display = display;
+}
 Feed::~Feed()
 {
   grabbing.store(false);

@@ -2,30 +2,59 @@
 #define MYOPENCVPROJECT_FEED_H_
 
 #include <atomic>
+#include <string>
 #include <thread>
 
 #include "boost/lockfree/spsc_queue.hpp"
 #include "opencv2/opencv.hpp"
 
 //#TODO: finish moving functions out of main and encapsulate them in this class
+
+// template<typename Func>
+// struct Func;
 class Feed
 {
  private:
   int feed_id;
-  string feed_name;
+  std::string feed_name;
+  bool display;
 
-  boost::lockfree::spsc_queue<cv::Mat, boost::lockfree::capacity<100>> feed;
-  atomic<bool> grabbing, processing;
+  boost::lockfree::spsc_queue<cv::Mat, boost::lockfree::capacity<100>> frameBuffer;
+  std::atomic<bool> grabbing, processing;
   std::thread producer, consumer;
 
+  std::function<void(cv::Mat&)> frameDataProcessor;
+
   void feedProducer();
+
+  // template<typename Func>
   void feedConsumer();
 
  public:
-  Feed(int feed_id);
+  Feed(int, std::string);
   ~Feed();
 
-  loop(void (*func)(cv::Mat&));
-}
+  void setDisplay(bool display);
+
+  template<typename Func>
+  void setFrameDataProcessor(Func&& f)
+  {
+    frameDataProcessor = std::forward<Func>(f);
+  }
+
+  template<typename Func>
+  void loop(Func&& f)
+  {
+    this->start();
+    this->setFrameDataProcessor(std::forward<Func>(f));
+
+    // Capture Input
+    producer = std::thread(&Feed::feedProducer, this);
+    consumer = std::thread(&Feed::feedConsumer, this);
+  }
+
+  void start();
+  void stop();
+};
 
 #endif  // MYOPENCVPROJECT_FEED_H_
